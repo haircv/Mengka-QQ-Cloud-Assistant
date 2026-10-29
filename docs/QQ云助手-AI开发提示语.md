@@ -11,6 +11,7 @@
 > **v1.2.16 增补（2026-10-29）**：在线更新导入后自动调用萌卡启动接口启用插件；红包请求同时提交嵌套/扁平字段与 `sender_id`/`sender_uin`，凭据失败按“新凭据→无凭据→自己红包延迟”多级重试；语音音频改用 Base64 上传，规避萌卡本地媒体目录限制；登录页明确萌卡端口不固定并提示 admin.token 回退。
 > **v1.2.17 增补（2026-10-29）**：`开启点歌功能`同时开启外部搜索，卡片/语音点歌缺少搜索时给出明确指引；禁言/解禁/踢人/上下管支持 @ 数值、昵称、UID 映射与引用消息回退解析，并记录目标解析诊断日志；同一 QQ 的 Android 与 Linux/PC 同时在线时，默认仅 Android 实例生效，其他协议静默（账号级开关可关闭）。
 > **v1.2.18 增补（2026-10-29）**：撤销 1.2.16 的扁平红包字段，`grab_red_packet` 只提交嵌套 `red_packet`、`group_id`、`sender_id` 和可选 `claim_token`；自动启用只匹配新版本实例，并新增独立启动助手，避免导入替换进程时丢失启动调用。
+> **v1.2.19 增补（2026-10-29）**：萌卡后台 CSRF 兜底：自动读取任意 csrf/xsrf Cookie，缺失时先 GET 管理首页补发，写请求同时发送 `X-XSRF-TOKEN` 与 `X-CSRF-Token`，403 时刷新令牌并重试一次；控制台自身 403 也会刷新会话 CSRF 后重试。
 
 ---
 
@@ -75,7 +76,7 @@
 2. 启动后 stdout 第一行必须是：
 
 ```json
-{"type":"hello","api_version":"1","framework_api":"3.0.0","plugin_id":"qq-cloud-assistant","version":"1.2.18"}
+{"type":"hello","api_version":"1","framework_api":"3.0.0","plugin_id":"qq-cloud-assistant","version":"1.2.19"}
 ```
 
 3. 等待 stdin 返回 `{"type":"ready"}` 后才能发 action 请求；10 秒未收到则退出。
@@ -509,10 +510,10 @@ qq-cloud-assistant/
 构建与打包：
 
 ```bash
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.18"   -o dist/windows-amd64/qq-cloud-assistant.exe .
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.19"   -o dist/windows-amd64/qq-cloud-assistant.exe .
 
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.18"   -o dist/linux-amd64/qq-cloud-assistant .
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.18"   -o dist/linux-arm64/qq-cloud-assistant .
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.19"   -o dist/linux-amd64/qq-cloud-assistant .
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.19"   -o dist/linux-arm64/qq-cloud-assistant .
 ```
 
 - Windows 包清单 `entry` 为 `qq-cloud-assistant.exe`；Linux 包为 `qq-cloud-assistant`。
@@ -724,7 +725,7 @@ GET    /api/health
 5. **M4 控制台**：登录 → catalog → 通用渲染器 → 59 模块（含红包、授权、点歌线路、在线更新）→ 一键操作。
 6. **M5 引擎**：定时、循环、群发、验证、防撤、自身撤回、打卡、续火、秒赞秒评、多源点歌、五类红包/规则/语音、授权门禁、账本清理。
 7. **M6 质量**：审计、备份恢复、并发与 panic 测试、红包/授权测试、`go vet`、`go test -race`。
-8. **M7 发布**：Windows/Linux 包（1.2.18）、README、升级说明、能力矩阵、校验和。
+8. **M7 发布**：Windows/Linux 包（1.2.19）、README、升级说明、能力矩阵、校验和。
 
 每阶段结束必须执行：
 
@@ -754,7 +755,7 @@ go build ./...
 - **授权测试**：卡密生成、代理配额、兑换续期、撤销、手动授权、门禁开启/关闭、Lv5 豁免、未授权群拦截。
 - **红包集成测试**：假 IPC 回放普通/口令/低门槛/语音四种红包，校验领取、跳过、回复、账本与耗时字段。
 - **控制台测试**：红包统计/排行/记录/设置、卡密生成/状态、手动授权/撤销、代理 CRUD。
-- **打包测试**：Windows x64、Linux x86_64、Linux ARM64 三个包在全新目录安装，首次启动生成 token，控制台可登录；hello 版本 1.2.18、清单 54 个 action。
+- **打包测试**：Windows x64、Linux x86_64、Linux ARM64 三个包在全新目录安装，首次启动生成 token，控制台可登录；hello 版本 1.2.19、清单 54 个 action。
 
 ---
 
