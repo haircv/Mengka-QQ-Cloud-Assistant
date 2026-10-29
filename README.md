@@ -10,7 +10,6 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 - 授权：本地卡密 / 分群授权 / 代理管理，**无授权站、无应用 ID、无心跳、无联网校验**
 - 平台：Windows x64 / Linux x86_64 / Linux ARM64
 - 更新日志与下载：https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases
-- 开发文档：[插件功能开发文档](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/blob/main/docs/QQ云助手-插件功能开发文档.md) · [AI 开发提示语](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/blob/main/docs/QQ云助手-AI开发提示语.md)
 
 ## 功能概览
 
