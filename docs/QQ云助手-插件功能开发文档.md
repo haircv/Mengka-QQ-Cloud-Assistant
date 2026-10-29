@@ -1515,6 +1515,7 @@ func (e *Engine) Level(ev *Event) int {
 - 托管环境通过萌卡管理接口登录后调用 `POST /api/v1/plugins/managed/import` 上传安装包；如返回 `capability_change`，控制台展示确认，携带 `approval_token` 重试。导入成功后读取 `/api/v1/plugins/managed`，匹配 `release.plugin_id`/版本/节点并 POST `/api/v1/plugins/managed/{id}/action`（`start`）自动启用；启动失败保留更新结果并返回 `start_error`。
 - 导入前读取 `/api/v1/nodes/options` 解析服务节点：优先匹配萌卡托管节点，单节点自动选择；多节点可在“在线更新设置 → 服务节点 ID”（`update.node_id`）指定。表单固定提交 `node_id` 与 `trusted_source_ack=true`，未传节点时萌卡会拒绝为“请选择服务节点”。
 - 1.2.13 及更早版本不提交 `node_id`，需要先手动导入一次 1.2.14 或更高版本；升级后的版本可继续在线更新。
+- 自动启用从 1.2.16 开始生效；从 1.2.15 或更早版本升级到 1.2.16 时，首次仍需手动启动一次，后续更新自动启用。
 - 控制台提供“测试萌卡接口”，只检查可达性与会话状态，**不会消耗验证码**（此前的接口测试会生成新验证码，导致登录页验证码失效）；管理接口地址错误返回 502 并提示不要填写插件控制台，账号/验证码错误保持 401。
 - 非托管环境只允许检查/下载，提示手动导入，不替换当前程序。
 - 自动检查由 `update.auto_check` 控制，启动 3 秒后检查一次，之后每 6 小时一次；只检查，不自动安装。
