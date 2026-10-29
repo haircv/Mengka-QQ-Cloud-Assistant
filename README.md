@@ -4,7 +4,7 @@
 
 QQ云助手把群管理、自动化、问答、定时任务、红包助手、点歌、本地授权和在线更新放在一个控制台里。插件以原生 IPC 子进程运行，由萌卡负责启动、停止和权限管理；控制台默认监听本机 `18084`。
 
-当前版本：**1.2.11** · 380 条指令 · 59 个控制台模块 · 支持 Windows x64 / Linux x86_64 / Linux ARM64。
+当前版本：**1.2.12** · 380 条指令 · 59 个控制台模块 · 支持 Windows x64 / Linux x86_64 / Linux ARM64。
 
 [下载安装包](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases) · [更新日志](release-notes/README.md) · [问题反馈](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/issues)
 
@@ -28,11 +28,11 @@ QQ云助手把群管理、自动化、问答、定时任务、红包助手、点
 
 | 系统 | 安装包 |
 | --- | --- |
-| Windows AMD64 | `qq-cloud-assistant-1.2.11-windows-amd64.zip` |
-| Linux AMD64 | `qq-cloud-assistant-1.2.11-linux-amd64.tar.gz` |
-| Linux ARM64 | `qq-cloud-assistant-1.2.11-linux-arm64.tar.gz` |
+| Windows AMD64 | `qq-cloud-assistant-1.2.12-windows-amd64.zip` |
+| Linux AMD64 | `qq-cloud-assistant-1.2.12-linux-amd64.tar.gz` |
+| Linux ARM64 | `qq-cloud-assistant-1.2.12-linux-arm64.tar.gz` |
 
-从 [Releases](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases/tag/v1.2.11) 下载对应系统的压缩包，并在萌卡 NT「插件 → 插件导入」上传；每个 Release 同时提供 `SHA256SUMS`。
+从 [Releases](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases/tag/v1.2.12) 下载对应系统的压缩包，并在萌卡 NT「插件 → 插件导入」上传；每个 Release 同时提供 `SHA256SUMS`。
 
 ## 安装与更新
 
