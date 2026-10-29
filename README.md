@@ -3,19 +3,19 @@
 QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，以原生 IPC 插件运行，并自带 Web 控制台。
 
 - 插件 ID：`qq-cloud-assistant`
-- 当前版本：**1.2.7**
+- 当前版本：**1.2.8**
 - 平台：Windows x64 / Linux x86_64 / Linux ARM64
 - 更新说明：[release-notes](release-notes/README.md)
 
 ## 下载
 
-从 [v1.2.7 Release](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases/tag/v1.2.7) 下载对应系统的安装包：
+从 [v1.2.8 Release](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases/tag/v1.2.8) 下载对应系统的安装包：
 
 | 系统 | 安装包 |
 | --- | --- |
-| Windows AMD64 | `qq-cloud-assistant-1.2.7-managed-native-windows-amd64.zip` |
-| Linux AMD64 | `qq-cloud-assistant-1.2.7-managed-native-linux-amd64.tar.gz` |
-| Linux ARM64 | `qq-cloud-assistant-1.2.7-managed-native-linux-arm64.tar.gz` |
+| Windows AMD64 | `qq-cloud-assistant-1.2.8-managed-native-windows-amd64.zip` |
+| Linux AMD64 | `qq-cloud-assistant-1.2.8-managed-native-linux-amd64.tar.gz` |
+| Linux ARM64 | `qq-cloud-assistant-1.2.8-managed-native-linux-arm64.tar.gz` |
 
 每个 Release 同时提供 `SHA256SUMS`。
 
