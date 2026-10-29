@@ -1,6 +1,6 @@
 # QQ云助手（qq-cloud-assistant）插件功能开发文档
 
-> 版本：v3.7（2026-10-29，v1.2.16 自动启用、红包请求兼容/多级重试、语音 Base64 与登录端口提示增补；含 v1.2.14 服务节点与数据目录保留）
+> 版本：v3.8（2026-10-29，v1.2.17 点歌搜索联动、@ 目标解析回退与多协议 Android 优先增补；含 1.2.16 自动启用与语音 Base64）
 > 目标框架：萌卡 NT 3.0，原生 IPC 插件（`native-ipc-v1`，`mengka-plugin.json` schema 3）
 > 功能基线：`cloud-assistant 1.0.0`（源码 43 个注册类目、370 条注册项，其中 7 条为占位）
 > 控制台参考：`group_management 1.0.3beta`（仅参考布局、目录驱动、交互与视觉）
@@ -35,7 +35,7 @@
 4. 口令红包先发送去空白口令，再用发送结果 `client_seq`、`msg_random` 与原红包数据领取；缺少有效标识时放弃，不使用红包消息的 `msg_seq`。
 5. 领取成功必须同时满足 `retcode=0` 与 `state=0`；金额只读 `recv_object.amount`，缺失记未知，默认不回复。
 6. 到账回复延迟发送，支持模板变量；失败不自动重试；完整流程耗时与领取响应分别记录。
-7. v1.1 语音红包跳过；v1.2 改为生成标题音频 → 匹配 → 群语音 → 专用领取；v1.2.15 默认内置 AI 语音，可切换自定义 TTS 或固定音频；v1.2.16 音频改用 Base64 上传，见 0.2。
+7. v1.1 语音红包跳过；v1.2 改为生成标题音频 → 匹配 → 群语音 → 专用领取；v1.2.15 默认内置 AI 语音，可切换自定义 TTS 或固定音频；v1.2.16 音频改用 Base64 上传；v1.2.17 增加多协议 Android 优先与 @ 目标回退，见 0.2。
 8. 账本默认保留 30 天，后台每 6 小时清理；日志不记录 `authkey`、`claim_token`。
 
 授权约定：
@@ -63,11 +63,13 @@
 
 v1.2 行为约定：
 
-1. 红包类型识别优先读取 red_packet 的 `type`/`packet_type`；否则按 channel 映射。若上游把普通与拼手气都投递为同一 channel，独立开关只能在上游提供可区分字段时生效。
+1. 红包类型识别优先使用明确 `channel`（6/32 口令、65536 语音、1024 专属、2 拼手气）；`channel=1/0` 时再读取 `type`/`packet_type`。若上游既不提供明确 channel 也不提供 type，独立开关无法区分普通与拼手气。
 2. 专属红包不自行判断接收人；以官方领取接口结果为准，非目标按失败记录。
 3. 语音红包流程：准备标题音频（默认内置 AI 语音，可选自定义 TTS 或固定文件/URL），本地/生成音频使用 Base64 上传 → `upload_red_packet_voice` 匹配 → `upload_group_voice` 发送 → `grab_group_voice_red_packet`；关闭发送、音频准备失败或匹配失败不调用领取。
 4. 点歌搜索按“首选来源 → 其他来源”尝试启用的线路，单次最多 8 条线路、总耗时上限 20 秒；无结果或全部失败回退搜索链接。
 5. 点歌语音优先 `upload_group_voice`；好友/临时会话用 `upload_friend_voice`。语音失败回退卡片，卡片失败回退链接。
+6. `开启点歌功能` 同时写入 `music.search_enabled=true`；卡片/语音模式在搜索关闭时直接提示开启搜索，不回退链接。
+7. 禁言/解禁/踢人/上下管的目标解析顺序：at 段数字 ID → @ 数值 → UID 映射 → 群名片/昵称 → 引用消息发送者；失败日志仅记录段类型与字段名。
 
 ---
 
@@ -97,7 +99,7 @@ v1.2 行为约定：
 - 中文名：QQ云助手
 - 英文名：`qq-cloud-assistant`
 - 插件 ID：`qq-cloud-assistant`
-- 版本：`1.2.16`
+- 版本：`1.2.17`
 - 语言：Go 1.25
 - 依赖：
   - `modernc.org/sqlite`（纯 Go，无 cgo）
@@ -201,7 +203,7 @@ IPC 形态下，插件不需要 `TOKEN`、`SERVER`、`STORAGE_DIR`，也不需�
   "framework_api": "3.0.0",
   "plugin_id": "qq-cloud-assistant",
   "name": "QQ云助手",
-  "version": "1.2.16",
+  "version": "1.2.17",
   "min_framework": "3.0.0",
   "author": "QQ云助手",
   "notes": "QQ 云端助手，本地卡密，无联网授权",
@@ -296,7 +298,7 @@ IPC 形态下，插件不需要 `TOKEN`、`SERVER`、`STORAGE_DIR`，也不需�
 
 ```text
 框架启动插件进程
-  → 插件 stdout: {"type":"hello","api_version":"1","framework_api":"3.0.0","plugin_id":"qq-cloud-assistant","version":"1.2.16"}
+  → 插件 stdout: {"type":"hello","api_version":"1","framework_api":"3.0.0","plugin_id":"qq-cloud-assistant","version":"1.2.17"}
   → 框架 stdin: {"type":"ready"}
   → 插件可发 action
   → 框架推送 event
@@ -583,23 +585,23 @@ data/
 同一源码交叉编译三个平台，`CGO_ENABLED=0`：
 
 ```bash
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.16 -X main.commit=$GIT_SHA -X main.buildTime=$BUILD_TIME"   -o dist/windows-amd64/qq-cloud-assistant.exe .
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.17 -X main.commit=$GIT_SHA -X main.buildTime=$BUILD_TIME"   -o dist/windows-amd64/qq-cloud-assistant.exe .
 
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.16 -X main.commit=$GIT_SHA -X main.buildTime=$BUILD_TIME"   -o dist/linux-amd64/qq-cloud-assistant .
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.16 -X main.commit=$GIT_SHA -X main.buildTime=$BUILD_TIME"   -o dist/linux-arm64/qq-cloud-assistant .
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.17 -X main.commit=$GIT_SHA -X main.buildTime=$BUILD_TIME"   -o dist/linux-amd64/qq-cloud-assistant .
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath   -ldflags "-s -w -X main.version=1.2.17 -X main.commit=$GIT_SHA -X main.buildTime=$BUILD_TIME"   -o dist/linux-arm64/qq-cloud-assistant .
 ```
 
 打包要求：
 
 ```text
-qq-cloud-assistant-1.2.16-windows-amd64.zip
+qq-cloud-assistant-1.2.17-windows-amd64.zip
 ├── mengka-plugin.json      # entry = qq-cloud-assistant.exe
 ├── qq-cloud-assistant.exe
 ├── README.txt
 └── SHA256SUMS
 
-qq-cloud-assistant-1.2.16-linux-amd64.tar.gz
-qq-cloud-assistant-1.2.16-linux-arm64.tar.gz
+qq-cloud-assistant-1.2.17-linux-amd64.tar.gz
+qq-cloud-assistant-1.2.17-linux-arm64.tar.gz
 ├── mengka-plugin.json      # entry = qq-cloud-assistant
 ├── qq-cloud-assistant      # 0755
 ├── README.txt
@@ -1217,6 +1219,7 @@ func (e *Engine) Level(ev *Event) int {
 - 主人/账号主人表格仅显示与填写 QQ：后台统一保存为 `{"uin": QQ}`，不再要求 uid、note。
 - 选择结果写入 `sessionStorage`，刷新后保持。
 - 每个 API 请求显式带 `self_id`、`protocol_id`、`group_id`。
+- 同一 QQ 的 Android 与 Linux/PC 同时在线时，默认仅 Android 实例处理事件；Linux/PC 实例静默，Android 离线后自动恢复。账号级开关 `multi_protocol_android_only` 默认开启。
 - 账号离线时仍可查看配置；群列表显示最近缓存。
 
 ### 6.4 目录协议
@@ -1475,7 +1478,7 @@ func (e *Engine) Level(ev *Event) int {
 | GET | `/api/admin/settings/web` | 控制台设置 |
 | PUT | `/api/admin/settings/web` | 修改监听地址/端口/会话时长 |
 | POST | `/api/admin/settings/token/reset` | 重置管理令牌，返回新令牌一次 |
-| GET | `/api/health` | `{"status":"ok","version":"1.2.16"}` |
+| GET | `/api/health` | `{"status":"ok","version":"1.2.17"}` |
 
 - 新增表格 kind：`license_cards`、`group_authorizations`、`agents`、`music_lines`、`red_packet_rules`；红包记录由专用 `/api/admin/redpacket/records` 提供筛选与分页。
 
@@ -1509,13 +1512,13 @@ func (e *Engine) Level(ev *Event) int {
 - 托管模式下登录页默认切换为“萌卡管理员登录”：管理员账号、密码、图形验证码；验证码通过插件后端代理获取，密码只用于本次登录，不写配置、不写日志。登录页显示实际管理地址，并明确端口不固定（不一定是 7891）；无法连接时使用数据目录 `admin.token` 回退登录。
 - 默认更新源为 `haircv/Mengka-QQ-Cloud-Assistant` 的 GitHub Release；也可改为其他 GitHub 仓库（`owner/repo`，支持 stable/prerelease）或自定义更新清单 URL。
 - `.github/workflows/release.yml` 在推送 `v*` 标签或手动触发时测试、构建三平台短名称包（`qq-cloud-assistant-<version>-<platform>`）并上传 Release；本机可用 `scripts/publish-release.sh` / `.ps1`。
-- 自定义清单格式：`{"version":"1.2.16","notes":"...","assets":{"windows-amd64":{"url":"...","sha256":"...","size":123},"linux-amd64":{...},"linux-arm64":{...}}}`；也接受 GitHub Release JSON 的 `tag_name/body/assets[]`。
+- 自定义清单格式：`{"version":"1.2.17","notes":"...","assets":{"windows-amd64":{"url":"...","sha256":"...","size":123},"linux-amd64":{...},"linux-arm64":{...}}}`；也接受 GitHub Release JSON 的 `tag_name/body/assets[]`。
 - 下载后必须校验：压缩包大小/可选 SHA256；`mengka-plugin.json` 的 `plugin_id` 必须为 `qq-cloud-assistant` 且版本匹配；`SHA256SUMS` 中必须存在并匹配程序入口哈希。任何一项失败都不导入。
 - “萌卡管理接口”填写 **Mengka 管理端 Web 地址**（例如 `http://127.0.0.1:7891` 或反向代理域名），不是本插件控制台 18084；登录弹窗会显示实际目标地址。
 - 托管环境通过萌卡管理接口登录后调用 `POST /api/v1/plugins/managed/import` 上传安装包；如返回 `capability_change`，控制台展示确认，携带 `approval_token` 重试。导入成功后读取 `/api/v1/plugins/managed`，匹配 `release.plugin_id`/版本/节点并 POST `/api/v1/plugins/managed/{id}/action`（`start`）自动启用；启动失败保留更新结果并返回 `start_error`。
 - 导入前读取 `/api/v1/nodes/options` 解析服务节点：优先匹配萌卡托管节点，单节点自动选择；多节点可在“在线更新设置 → 服务节点 ID”（`update.node_id`）指定。表单固定提交 `node_id` 与 `trusted_source_ack=true`，未传节点时萌卡会拒绝为“请选择服务节点”。
 - 1.2.13 及更早版本不提交 `node_id`，需要先手动导入一次 1.2.14 或更高版本；升级后的版本可继续在线更新。
-- 自动启用从 1.2.16 开始生效；从 1.2.15 或更早版本升级到 1.2.16 时，首次仍需手动启动一次，后续更新自动启用。
+- 自动启用从 1.2.17 开始生效；从 1.2.15 或更早版本升级到 1.2.17 时，首次仍需手动启动一次，后续更新自动启用。
 - 控制台提供“测试萌卡接口”，只检查可达性与会话状态，**不会消耗验证码**（此前的接口测试会生成新验证码，导致登录页验证码失效）；管理接口地址错误返回 502 并提示不要填写插件控制台，账号/验证码错误保持 401。
 - 非托管环境只允许检查/下载，提示手动导入，不替换当前程序。
 - 自动检查由 `update.auto_check` 控制，启动 3 秒后检查一次，之后每 6 小时一次；只检查，不自动安装。
@@ -2420,7 +2423,7 @@ go build ./...
 - 假 IPC 节点回放点歌：坏线路失败换源、搜歌选歌、QQ/网易云卡片、语音发送、酷狗/失败回退链接。
 - 红包账本验证：同一 `listid` 不重复处理；成功金额取 `recv_object.amount`；完整流程与领取响应分别记录。
 - 控制台浏览器验证：59 个模块；红包五类/规则/语音来源、点歌线路、在线更新正常；卡密生成、禁用/启用/删除、手动授权/撤销正常；无 JS 报错。
-- 打包验证：Windows/Linux 包清单 54 个 action；Windows 包 hello 版本 `1.2.16`；控制台登录与静态资源加载正常。
+- 打包验证：Windows/Linux 包清单 54 个 action；Windows 包 hello 版本 `1.2.17`；控制台登录与静态资源加载正常。
 
 ---
 
