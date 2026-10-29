@@ -6,7 +6,7 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 - 插件 ID：`qq-cloud-assistant`
 - 框架：萌卡 NT 3.0（`mengka-plugin.json` schema 3）
 - 接入：`native-ipc-v1`
-- 版本：1.2.17
+- 版本：1.2.18
 - 授权：本地卡密 / 分群授权 / 代理管理，**无授权站、无应用 ID、无心跳、无联网校验**
 - 平台：Windows x64 / Linux x86_64 / Linux ARM64
 - 更新日志与下载：https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases
@@ -51,7 +51,7 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 红包能力基于萌卡官方 `red_packet` 消息段与红包接口，不修改协议、不伪造客户端；要求 Android 协议账号。
 
 - 五类独立开关：普通、拼手气、口令、专属、语音；6/32/65536/1024 等明确 `channel` 优先，`channel=1/0` 再结合 `type` 识别普通/拼手气。指令支持 `开启/关闭普通红包`、`开启/关闭拼手气红包`、`开启/关闭口令红包`、`开启/关闭专属红包`、`开启/关闭语音红包`。
-- 普通/拼手气/专属：请求同时携带嵌套与扁平红包字段以及 `sender_id`/`sender_uin`；查询详情取得 `claim_token`（兼容旧版 `pre_grap_token`）。凭据缺失、失效或返回 `state=6` 时依次尝试新凭据、无凭据自动获取、自己红包延迟重试。
+- 普通/拼手气/专属：请求使用 `group_id`、`sender_id` 与嵌套 `red_packet`，不再把 `channel/title` 等字段平铺到顶层；查询详情取得 `claim_token`。凭据缺失、失效或返回 `state=6` 时依次尝试新凭据、无凭据自动获取、自己红包延迟重试。
 - 普通/拼手气/专属：按 `delay_ms + jitter_ms` 延迟领取；专属红包由上游校验接收人，非目标会按领取失败记录。
 - 口令红包：先发送去除首尾空白的口令，再用发送结果的 `client_seq`、`msg_random` 领取，不用红包消息的 `msg_seq`，也不传 `claim_token`。
 - 语音红包：默认使用内置 AI 语音生成标题录音，也可选择自定义 TTS 或固定语音文件/URL；随后 `upload_red_packet_voice` 匹配 → 发送群语音 → `grab_group_voice_red_packet`。官方接口要求先发送语音，无法在不发送语音的情况下领取；关闭“发送语音”后语音红包会跳过，不产生 TTS 错误。
@@ -104,9 +104,9 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 
 1. 在萌卡 NT 管理后台打开“插件导入”。
 2. 选择对应系统的安装包：
-   - `qq-cloud-assistant-1.2.17-windows-amd64.zip`
-   - `qq-cloud-assistant-1.2.17-linux-amd64.tar.gz`
-   - `qq-cloud-assistant-1.2.17-linux-arm64.tar.gz`
+   - `qq-cloud-assistant-1.2.18-windows-amd64.zip`
+   - `qq-cloud-assistant-1.2.18-linux-amd64.tar.gz`
+   - `qq-cloud-assistant-1.2.18-linux-arm64.tar.gz`
 3. 选择绑定节点并导入。
 4. 启动插件。
 5. 首次启动会在数据目录生成 `admin.token`，并向框架日志输出一次管理令牌。
@@ -125,10 +125,10 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 1. 暂停插件；
 2. 如果旧数据仍在插件安装目录的 `data/`，先备份该目录；
 3. 在萌卡 NT 管理后台重新导入对应版本的安装包，并绑定原节点；
-4. 1.2.17 首次启动会自动把旧数据迁移到萌卡数据目录（升级保留数据）；
+4. 1.2.18 首次启动会自动把旧数据迁移到萌卡数据目录（升级保留数据）；
 5. 不要直接覆盖已安装目录内的可执行文件后重启。
 
-> 1.2.13 及更早版本的在线更新不会提交 `node_id`，会被萌卡拒绝为“请选择服务节点”。请手动导入一次 1.2.17，之后即可正常在线更新。
+> 1.2.13 及更早版本的在线更新不会提交 `node_id`，会被萌卡拒绝为“请选择服务节点”。请手动导入一次 1.2.18，之后即可正常在线更新。
 
 ## 数据目录
 
@@ -186,7 +186,7 @@ data/
 - 仅在萌卡托管模式安装：先登录萌卡管理员（账号、密码、图形验证码），再调用 `/api/v1/plugins/managed/import` 导入；权限变化时需二次确认。
 - 服务节点：默认读取萌卡托管节点配置；只有一个可用节点时自动选择，多节点时在“在线更新设置 → 服务节点 ID”填写 `/api/v1/nodes/options` 中的节点 ID。
 - 导入完成后自动查找新实例并调用 `action=start` 启用；启动失败会保留更新结果并提示手动启用。
-- 自动启用从 1.2.17 开始生效：从 1.2.15 或更早版本升级到 1.2.17 时，首次仍需在萌卡插件页手动点击一次启动。
+- 1.2.18 起使用独立启动助手，并在导入后只匹配新版本实例；从 1.2.17 或更早版本升级到 1.2.18 时，首次仍需在萌卡插件页手动点击一次启动，之后更新可自动启用。
 - “萌卡管理接口”填写 Mengka 管理端 Web 地址（如 `http://127.0.0.1:7891` 或反向代理域名），**不是插件控制台 18084**；可用“测试萌卡接口”检查目标地址（不会消耗验证码）。地址错误返回 502，账号/验证码错误返回 401。
 - 独立/控制台模式只允许检查和下载，不自动替换程序。
 - GitHub API 未认证时有速率限制；可设置环境变量 `QCA_GITHUB_TOKEN`（只读权限即可）提高额度。
@@ -194,12 +194,12 @@ data/
 
 ```json
 {
-  "version": "1.2.17",
+  "version": "1.2.18",
   "notes": "更新说明",
   "assets": {
-    "windows-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.17-windows-amd64.zip", "sha256": "..."},
-    "linux-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.17-linux-amd64.tar.gz", "sha256": "..."},
-    "linux-arm64": {"url": "https://example.com/qq-cloud-assistant-1.2.17-linux-arm64.tar.gz", "sha256": "..."}
+    "windows-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.18-windows-amd64.zip", "sha256": "..."},
+    "linux-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.18-linux-amd64.tar.gz", "sha256": "..."},
+    "linux-arm64": {"url": "https://example.com/qq-cloud-assistant-1.2.18-linux-arm64.tar.gz", "sha256": "..."}
   }
 }
 ```
@@ -303,15 +303,15 @@ data/
 
 ### 禁言/解禁提示“请 @ 要禁言的成员”
 
-可使用 `禁言 @群成员 60`、`禁言 @QQ号 60`、`禁言 QQ号 60`；解禁同理。若 @ 段缺少数字 ID，1.2.17 会按昵称、UID 映射或引用消息回退解析；仍失败时日志会输出 `禁言目标解析失败` 及消息段字段，便于继续定位。
+可使用 `禁言 @群成员 60`、`禁言 @QQ号 60`、`禁言 QQ号 60`；解禁同理。若 @ 段缺少数字 ID，1.2.18 会按昵称、UID 映射或引用消息回退解析；仍失败时日志会输出 `禁言目标解析失败` 及消息段字段，便于继续定位。
 
 ### 普通红包提示“未取得红包领取凭据 (state=6)”
 
-1.2.17 起会同时提交嵌套/扁平红包字段与 `sender_id`/`sender_uin`，兼容 `claim_token` 与旧版 `pre_grap_token`，并按新凭据、无凭据、自己红包延迟三级重试。自己发送的红包受节点风控影响，仍可能间歇失败；其他账号发送的红包若持续失败，请查看记录中的渠道与原因。
+1.2.18 起恢复为上一版的嵌套请求格式：只提交 `group_id`、`sender_id`、`red_packet` 和可选的 `claim_token`，不再平铺 `channel/title`。凭据失败仍按新凭据、无凭据、自己红包延迟重试。自己发送的红包受节点风控影响，仍可能间歇失败。
 
 ### 语音红包提示未配置 TTS / 不想在群里发语音
 
-1.2.15 起语音红包默认使用内置 AI 语音，不需要填写 TTS 接口；1.2.17 起音频改用 Base64 上传，不再受萌卡本地媒体目录限制。控制台“红包助手 → 语音红包音频来源”可切换为自定义 TTS 或固定语音文件/URL。官方接口要求先发送匹配语音才能领取，**不能只匹配不发送**；不需要发送语音时关闭“语音红包发送语音”或直接关闭语音红包类型，插件会跳过而不再报错。
+1.2.15 起语音红包默认使用内置 AI 语音，不需要填写 TTS 接口；1.2.18 起音频改用 Base64 上传，不再受萌卡本地媒体目录限制。控制台“红包助手 → 语音红包音频来源”可切换为自定义 TTS 或固定语音文件/URL。官方接口要求先发送匹配语音才能领取，**不能只匹配不发送**；不需要发送语音时关闭“语音红包发送语音”或直接关闭语音红包类型，插件会跳过而不再报错。
 
 ## 构建
 
@@ -340,9 +340,9 @@ powershell -ExecutionPolicy Bypass -File scripts/build-all.ps1
 
 ```text
 dist/
-├── qq-cloud-assistant-1.2.17-windows-amd64.zip
-├── qq-cloud-assistant-1.2.17-linux-amd64.tar.gz
-├── qq-cloud-assistant-1.2.17-linux-arm64.tar.gz
+├── qq-cloud-assistant-1.2.18-windows-amd64.zip
+├── qq-cloud-assistant-1.2.18-linux-amd64.tar.gz
+├── qq-cloud-assistant-1.2.18-linux-arm64.tar.gz
 └── SHA256SUMS
 ```
 
@@ -353,20 +353,20 @@ dist/
 仓库已包含 `.github/workflows/release.yml`：推送 `v*` 标签或手动触发 workflow 后，会执行测试、构建三平台包并上传 Release。
 
 ```bash
-git tag v1.2.17
-git push origin v1.2.17
+git tag v1.2.18
+git push origin v1.2.18
 ```
 
 本机也可使用 GitHub CLI 发布（需先 `gh auth login`）：
 
 ```bash
-bash scripts/publish-release.sh 1.2.17
+bash scripts/publish-release.sh 1.2.18
 ```
 
 或 Windows PowerShell：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/publish-release.ps1 1.2.17
+powershell -ExecutionPolicy Bypass -File scripts/publish-release.ps1 1.2.18
 ```
 
 更新说明放在 `release-notes/`，版本文件名为 `release-notes-v<版本>.md`。
