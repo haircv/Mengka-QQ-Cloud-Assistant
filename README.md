@@ -4,7 +4,7 @@
 
 把群管理、自动化、问答、定时群发、点歌、红包助手和本地卡密授权放在一个管理页面里。插件 ID 为 `qq-cloud-assistant`，以 `native-ipc-v1` 随萌卡启动，不需要开放插件端口或填写服务令牌；支持 Windows x64、Linux x86_64 和 Linux ARM64。
 
-所有配置、卡密和红包账本保存在本机数据目录。当前版本 **1.2.37**，代码声明 **382 条指令**，指令按节点能力自动注册；控制台共 **59 个模块**。
+所有配置、卡密和红包账本保存在本机数据目录。当前版本 **1.2.38**，代码声明 **382 条指令**，指令按节点能力自动注册；控制台共 **59 个模块**。
 
 [下载安装包](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases) · [更新日志](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases) · [反馈问题](https://github.com/haircv/Mengka-QQ-Cloud-Assistant/issues)
 
@@ -39,9 +39,9 @@
 
 当前版本的三个安装包：
 
-- `qq-cloud-assistant-1.2.37-windows-amd64.zip`
-- `qq-cloud-assistant-1.2.37-linux-amd64.tar.gz`
-- `qq-cloud-assistant-1.2.37-linux-arm64.tar.gz`
+- `qq-cloud-assistant-1.2.38-windows-amd64.zip`
+- `qq-cloud-assistant-1.2.38-linux-amd64.tar.gz`
+- `qq-cloud-assistant-1.2.38-linux-arm64.tar.gz`
 
 每个包根目录包含 `mengka-plugin.json`、本机可执行文件、`README.txt` 和 `SHA256SUMS`。不要只解压可执行文件去覆盖已安装目录后重启，萌卡会校验插件程序文件完整性。
 
@@ -279,7 +279,7 @@ data/
 
 ## 版本与升级
 
-当前版本为 **1.2.37**，每次正式发布递增版本。更新方式：
+当前版本为 **1.2.38**，每次正式发布递增版本。更新方式：
 
 1. 在控制台“系统 → 在线更新”检查并安装，或在聊天中发送 `检查更新` / `立即更新`。
 2. 也可以从发布页下载对应平台的安装包，在萌卡“插件导入”中重新导入。
@@ -292,7 +292,7 @@ data/
 4. 1.2.20 首次启动会自动把旧数据迁移到萌卡数据目录；
 5. 不要直接覆盖已安装目录内的可执行文件后重启。
 
-> 1.2.13 及更早版本的在线更新不会提交 `node_id`，会被萌卡拒绝为“请选择服务节点”。请手动导入一次 1.2.37，之后即可正常在线更新。
+> 1.2.13 及更早版本的在线更新不会提交 `node_id`，会被萌卡拒绝为“请选择服务节点”。请手动导入一次 1.2.38，之后即可正常在线更新。
 
 ## 常见问题
 
@@ -329,11 +329,11 @@ data/
 
 ### 插件卡片“管理”打不开或又回到登录页
 
-确认插件由萌卡托管启动，并且进程能读取 `MENGKA_PLUGIN_ADMIN_HOST`、`MENGKA_PLUGIN_ADMIN_PORT`、`MENGKA_PLUGIN_ADMIN_BASE_PATH`、`MENGKA_PLUGIN_ADMIN_TOKEN_FILE`、`MENGKA_PLUGIN_ADMIN_ORIGIN`。启动日志出现“萌卡管理端已监听”和“萌卡管理端配置”才表示反代服务就绪；若提示“管理令牌为空”，请在萌卡重新启动实例或使用数据目录的 `admin.token` 登录。萌卡会轮询 `GET /api/managed/health`，1.2.37 起在启动探活窗口内轮换纯文本/最小 JSON/204 等常见健康响应格式，命中后停止轮询；日志会记录“萌卡健康探活格式 #N”。若点击“管理”后日志没有任何管理端请求，说明萌卡尚未连到插件端口。萌卡管理端显示的 `127.0.0.1:5454` 是框架反代入口，插件实际使用日志中的 `MENGKA_PLUGIN_ADMIN_PORT`，无需手动绑定 5454。
+确认插件由萌卡托管启动，并且进程能读取 `MENGKA_PLUGIN_ADMIN_HOST`、`MENGKA_PLUGIN_ADMIN_PORT`、`MENGKA_PLUGIN_ADMIN_BASE_PATH`、`MENGKA_PLUGIN_ADMIN_TOKEN_FILE`、`MENGKA_PLUGIN_ADMIN_ORIGIN`。启动日志出现“萌卡管理端已监听”和“萌卡管理端配置”才表示反代服务就绪；若提示“管理令牌为空”，请在萌卡重新启动实例或使用数据目录的 `admin.token` 登录。萌卡会轮询 `GET /api/managed/health`，1.2.38 起在启动探活窗口内轮换纯文本/最小 JSON/204 等常见健康响应格式，命中后停止轮询；日志会记录“萌卡健康探活格式 #N”。若点击“管理”后日志没有任何管理端请求，说明萌卡尚未连到插件端口。萌卡管理端显示的 `127.0.0.1:5454` 是框架反代入口，插件实际使用日志中的 `MENGKA_PLUGIN_ADMIN_PORT`，无需手动绑定 5454。
 
 ### 更新后没有自动启用
 
-1.2.20 起会自动查找新实例并调用启动接口；如果仍未启用，可手动启动一次 1.2.37。此后助手使用系统任务计划或 `systemd-run`，不再依赖旧插件进程存活。控制台“在线更新 → 自动启用日志”可查看执行记录。
+1.2.20 起会自动查找新实例并调用启动接口；如果仍未启用，可手动启动一次 1.2.38。此后助手使用系统任务计划或 `systemd-run`，不再依赖旧插件进程存活。控制台“在线更新 → 自动启用日志”可查看执行记录。
 
 ### 数据在哪里？怎么备份？
 
