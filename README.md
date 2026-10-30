@@ -6,7 +6,7 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 - 插件 ID：`qq-cloud-assistant`
 - 框架：萌卡 NT 3.0（`mengka-plugin.json` schema 3）
 - 接入：`native-ipc-v1`
-- 版本：1.2.19
+- 版本：1.2.20
 - 授权：本地卡密 / 分群授权 / 代理管理，**无授权站、无应用 ID、无心跳、无联网校验**
 - 平台：Windows x64 / Linux x86_64 / Linux ARM64
 - 更新日志与下载：https://github.com/haircv/Mengka-QQ-Cloud-Assistant/releases
@@ -16,7 +16,7 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 - 通用：菜单、类目菜单、帮助、运行状态（登录协议显示为 `Android Pad(9.3.75)`，实时状态末尾显示在线/登录时间/当前时间）、在线更新/检查更新/立即更新
 - 群管：踢人、禁言/解禁、上下管、全体禁言、解禁全部、群星/群信息、取码、复读、取直链、加群链接；禁言/解禁支持 @成员、@QQ号、QQ 号，@ 段异常时可按昵称、UID 或引用消息解析目标
 - 群配置：模板变量提示；分管、群/全局黑名单仅填写 QQ；清屏/召唤人数/点歌模式与 Web 控制台使用同一群配置
-- 提示：入群、退群、被踢、被删、被踢通知与模板
+- 提示：入群、退群、被踢、被删、机器人被踢通知与模板；默认全部关闭，按单个群在控制台或发送 `开启入群提示` 等指令开启
 - 自动化：防撤、自身撤回、艾特处理、秒赞秒评、点赞、互赞、表情回应、续火、自动说说、自动处理、名片、打卡、资料、备注、头衔、入群验证
 - 问答：本群/好友/全局 × 精准/模糊，白名单、延迟、随机回复条数、关键词冷却
 - 任务：定时、循环、群发、多源点歌与搜歌
@@ -103,9 +103,9 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 
 1. 在萌卡 NT 管理后台打开“插件导入”。
 2. 选择对应系统的安装包：
-   - `qq-cloud-assistant-1.2.19-windows-amd64.zip`
-   - `qq-cloud-assistant-1.2.19-linux-amd64.tar.gz`
-   - `qq-cloud-assistant-1.2.19-linux-arm64.tar.gz`
+   - `qq-cloud-assistant-1.2.20-windows-amd64.zip`
+   - `qq-cloud-assistant-1.2.20-linux-amd64.tar.gz`
+   - `qq-cloud-assistant-1.2.20-linux-arm64.tar.gz`
 3. 选择绑定节点并导入。
 4. 启动插件。
 5. 首次启动会在数据目录生成 `admin.token`，并向框架日志输出一次管理令牌。
@@ -124,10 +124,10 @@ QQ云助手是面向萌卡 NT 3.0 的 QQ 云端助手插件，功能基线来自
 1. 暂停插件；
 2. 如果旧数据仍在插件安装目录的 `data/`，先备份该目录；
 3. 在萌卡 NT 管理后台重新导入对应版本的安装包，并绑定原节点；
-4. 1.2.19 首次启动会自动把旧数据迁移到萌卡数据目录（升级保留数据）；
+4. 1.2.20 首次启动会自动把旧数据迁移到萌卡数据目录（升级保留数据）；
 5. 不要直接覆盖已安装目录内的可执行文件后重启。
 
-> 1.2.13 及更早版本的在线更新不会提交 `node_id`，会被萌卡拒绝为“请选择服务节点”。请手动导入一次 1.2.19，之后即可正常在线更新。
+> 1.2.13 及更早版本的在线更新不会提交 `node_id`，会被萌卡拒绝为“请选择服务节点”。请手动导入一次 1.2.20，之后即可正常在线更新。
 
 ## 数据目录
 
@@ -168,6 +168,8 @@ data/
 - 同一 QQ 多协议同时在线时，默认 Android 实例处理事件，Linux/PC 实例静默；Android 离线后 Linux/PC 自动恢复处理。
 - 账号选择器使用 `昵称（QQ / 协议ID）`；群级模块额外显示群选择器。
 - 运行概览与账号列表会逐账号刷新 `get_bot_info`，好友/群数量为 0 时回退 `get_friend_list` / `get_group_list` 计数。
+- 运行状态显示 CPU 占用、系统内存已用/总量/占比、磁盘总量/剩余，以及 Worker、协程、进程内存和指令数；“能力”页明确区分管理 API 版本与 Action/事件数量。
+- 关于页版本号从后端实时读取，与 `/api/health` 和发布版本一致。
 - 红包助手页包含：五类开关、语音发送开关与音频来源（内置 AI 语音/自定义 TTS/固定音频）、规则表，确认领取/累计金额/成功回复/平均领取耗时、运行概况、群红包排行、最近处理记录、账号级设置、监听群/只领不回复名单；群设置页可按群覆盖延迟、门槛、回复等。
 - 授权页包含：卡密管理、分群授权、代理管理、授权设置；任务页新增“点歌线路”表。
 - 支持的表格来源：白名单、回复池、问答、定时任务、循环任务、群发任务、账号分组、群分管、主人、黑名单、指令权限、审计日志、卡密、分群授权、代理、红包记录、红包规则、点歌线路。
@@ -186,7 +188,8 @@ data/
 - 服务节点：默认读取萌卡托管节点配置；只有一个可用节点时自动选择，多节点时在“在线更新设置 → 服务节点 ID”填写 `/api/v1/nodes/options` 中的节点 ID。
 - 导入完成后自动查找新实例并调用 `action=start` 启用；启动失败会保留更新结果并提示手动启用。
 - 萌卡管理端 CSRF 自动兼容：读取 `XSRF-TOKEN` 等 Cookie，缺失时先加载管理首页补发，写请求同时发送 `X-XSRF-TOKEN` / `X-CSRF-Token`，遇到 403 自动刷新令牌后重试一次。
-- 1.2.19 起使用独立启动助手，并在导入后只匹配新版本实例；从 1.2.17 或更早版本升级到 1.2.19 时，首次仍需在萌卡插件页手动点击一次启动，之后更新可自动启用。
+- 1.2.20 起启动助手优先通过 Windows 任务计划或 Linux `systemd-run` 启动，避免萌卡替换文件时连子进程一起终止；控制台“在线更新 → 自动启用日志”可查看执行记录。
+- 从旧版本升级到 1.2.20 后如果仍未自动启用，可手动启动一次 1.2.20；此后助手使用系统任务计划，不再依赖插件进程存活。
 - “萌卡管理接口”填写 Mengka 管理端 Web 地址（如 `http://127.0.0.1:7891` 或反向代理域名），**不是插件控制台 18084**；可用“测试萌卡接口”检查目标地址（不会消耗验证码）。地址错误返回 502，账号/验证码错误返回 401。
 - 独立/控制台模式只允许检查和下载，不自动替换程序。
 - GitHub API 未认证时有速率限制；可设置环境变量 `QCA_GITHUB_TOKEN`（只读权限即可）提高额度。
@@ -194,12 +197,12 @@ data/
 
 ```json
 {
-  "version": "1.2.19",
+  "version": "1.2.20",
   "notes": "更新说明",
   "assets": {
-    "windows-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.19-windows-amd64.zip", "sha256": "..."},
-    "linux-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.19-linux-amd64.tar.gz", "sha256": "..."},
-    "linux-arm64": {"url": "https://example.com/qq-cloud-assistant-1.2.19-linux-arm64.tar.gz", "sha256": "..."}
+    "windows-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.20-windows-amd64.zip", "sha256": "..."},
+    "linux-amd64": {"url": "https://example.com/qq-cloud-assistant-1.2.20-linux-amd64.tar.gz", "sha256": "..."},
+    "linux-arm64": {"url": "https://example.com/qq-cloud-assistant-1.2.20-linux-arm64.tar.gz", "sha256": "..."}
   }
 }
 ```
@@ -303,15 +306,15 @@ data/
 
 ### 禁言/解禁提示“请 @ 要禁言的成员”
 
-可使用 `禁言 @群成员 60`、`禁言 @QQ号 60`、`禁言 QQ号 60`；解禁同理。若 @ 段缺少数字 ID，1.2.19 会按昵称、UID 映射或引用消息回退解析；仍失败时日志会输出 `禁言目标解析失败` 及消息段字段，便于继续定位。
+可使用 `禁言 @群成员 60`、`禁言 @QQ号 60`、`禁言 QQ号 60`；解禁同理。若 @ 段缺少数字 ID，1.2.20 会按昵称、UID 映射或引用消息回退解析；仍失败时日志会输出 `禁言目标解析失败` 及消息段字段，便于继续定位。
 
 ### 普通红包提示“未取得红包领取凭据 (state=6)”
 
-1.2.19 起恢复为上一版的嵌套请求格式：只提交 `group_id`、`sender_id`、`red_packet` 和可选的 `claim_token`，不再平铺 `channel/title`。凭据失败仍按新凭据、无凭据、自己红包延迟重试。自己发送的红包受节点风控影响，仍可能间歇失败。
+1.2.20 起恢复为上一版的嵌套请求格式：只提交 `group_id`、`sender_id`、`red_packet` 和可选的 `claim_token`，不再平铺 `channel/title`。凭据失败仍按新凭据、无凭据、自己红包延迟重试。自己发送的红包受节点风控影响，仍可能间歇失败。
 
 ### 语音红包提示未配置 TTS / 不想在群里发语音
 
-1.2.15 起语音红包默认使用内置 AI 语音，不需要填写 TTS 接口；1.2.19 起音频改用 Base64 上传，不再受萌卡本地媒体目录限制。控制台“红包助手 → 语音红包音频来源”可切换为自定义 TTS 或固定语音文件/URL。官方接口要求先发送匹配语音才能领取，**不能只匹配不发送**；不需要发送语音时关闭“语音红包发送语音”或直接关闭语音红包类型，插件会跳过而不再报错。
+1.2.15 起语音红包默认使用内置 AI 语音，不需要填写 TTS 接口；1.2.20 起音频改用 Base64 上传，不再受萌卡本地媒体目录限制。控制台“红包助手 → 语音红包音频来源”可切换为自定义 TTS 或固定语音文件/URL。官方接口要求先发送匹配语音才能领取，**不能只匹配不发送**；不需要发送语音时关闭“语音红包发送语音”或直接关闭语音红包类型，插件会跳过而不再报错。
 
 ## 构建
 
@@ -340,9 +343,9 @@ powershell -ExecutionPolicy Bypass -File scripts/build-all.ps1
 
 ```text
 dist/
-├── qq-cloud-assistant-1.2.19-windows-amd64.zip
-├── qq-cloud-assistant-1.2.19-linux-amd64.tar.gz
-├── qq-cloud-assistant-1.2.19-linux-arm64.tar.gz
+├── qq-cloud-assistant-1.2.20-windows-amd64.zip
+├── qq-cloud-assistant-1.2.20-linux-amd64.tar.gz
+├── qq-cloud-assistant-1.2.20-linux-arm64.tar.gz
 └── SHA256SUMS
 ```
 
@@ -353,20 +356,20 @@ dist/
 仓库已包含 `.github/workflows/release.yml`：推送 `v*` 标签或手动触发 workflow 后，会执行测试、构建三平台包并上传 Release。
 
 ```bash
-git tag v1.2.19
-git push origin v1.2.19
+git tag v1.2.20
+git push origin v1.2.20
 ```
 
 本机也可使用 GitHub CLI 发布（需先 `gh auth login`）：
 
 ```bash
-bash scripts/publish-release.sh 1.2.19
+bash scripts/publish-release.sh 1.2.20
 ```
 
 或 Windows PowerShell：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/publish-release.ps1 1.2.19
+powershell -ExecutionPolicy Bypass -File scripts/publish-release.ps1 1.2.20
 ```
 
 更新说明放在 `release-notes/`，版本文件名为 `release-notes-v<版本>.md`。
