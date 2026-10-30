@@ -1,9 +1,10 @@
 # 更新说明
 
-最新正式版本：[v1.2.21](release-notes-v1.2.21.md) · [项目首页](../README.md)
+最新正式版本：[v1.2.22](release-notes-v1.2.22.md) · [项目首页](../README.md)
 
 ## 历史版本
 
+- [v1.2.22](release-notes-v1.2.22.md)
 - [v1.2.21](release-notes-v1.2.21.md)
 - [v1.2.20.1](release-notes-v1.2.20.1.md)（不符合萌卡格式，已由 1.2.21 替代）
 - [v1.2.20](release-notes-v1.2.20.md)
