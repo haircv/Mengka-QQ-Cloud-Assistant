@@ -1,9 +1,10 @@
 # 更新说明
 
-最新正式版本：[v1.2.51](release-notes-v1.2.51.md) · [项目首页](../README.md)
+最新正式版本：[v1.3.0](release-notes-v1.3.0.md) · [项目首页](../README.md)
 
 ## 历史版本
 
+- [v1.3.0](release-notes-v1.3.0.md)
 - [v1.2.51](release-notes-v1.2.51.md)
 - [v1.2.50](release-notes-v1.2.50.md)
 - [v1.2.49](release-notes-v1.2.49.md)
