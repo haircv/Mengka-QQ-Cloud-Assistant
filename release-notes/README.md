@@ -1,9 +1,10 @@
 # 更新说明
 
-最新正式版本：[v1.3.2](release-notes-v1.3.2.md) · [项目首页](../README.md)
+最新正式版本：[v1.3.3](release-notes-v1.3.3.md) · [项目首页](../README.md)
 
 ## 历史版本
 
+- [v1.3.3](release-notes-v1.3.3.md)
 - [v1.3.2](release-notes-v1.3.2.md)
 - [v1.3.1](release-notes-v1.3.1.md)
 - [v1.3.0](release-notes-v1.3.0.md)（清单含不存在 action，无法导入，已由 1.3.1 替代）
